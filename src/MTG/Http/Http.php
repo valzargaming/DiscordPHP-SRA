@@ -51,7 +51,7 @@ class Http implements HttpInterface
      *
      * @var string
      */
-    public const BASE_URL = 'https://api.magicthegathering.io/v'.self::HTTP_API_VERSION;
+    public const BASE_URL = 'https://api.some-random-api.com/facts/bird';
 
     /**
      * Authentication token.
