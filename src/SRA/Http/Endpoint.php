@@ -21,25 +21,33 @@ class Endpoint implements EndpointInterface
     use EndpointTrait;
 
     // GET
-    public const GATEWAY = 'gateway';
+    public const FACTS = 'facts';
     // GET
-    public const CARDS = 'cards';
+    public const FACTS_CAT = self::FACTS.'/cat';
     // GET
-    public const CARD = self::CARDS.'/:id';
+    public const FACTS_FOX = self::FACTS.'/fox';
     // GET
-    public const SETS = 'sets';
+    public const FACTS_BIRB = self::FACTS.'/birb';
     // GET
-    public const SET = self::SETS.'/:id';
+    public const FACTS_PANDA = self::FACTS.'/panda';
     // GET
-    public const SETS_BOOSTER = self::SETS.'/:id/booster';
+    public const FACTS_KOALA = self::FACTS.'/koala';
     // GET
-    public const TYPES = 'types';
+    public const FACTS_KANGAROO = self::FACTS.'/kangaroo';
     // GET
-    public const SUBTYPES = 'subtypes';
+    public const FACTS_RACOON = self::FACTS.'/racoon';
     // GET
-    public const SUPERTYPES = 'supertypes';
+    public const FACTS_GIRAFFE = self::FACTS.'/giraffe';
     // GET
-    public const FORMATS = 'formats';
+    public const FACTS_WHALE = self::FACTS.'/whale';
+    // GET
+    public const FACTS_ELEPHANT = self::FACTS.'/elephant';
+    // GET
+    public const FACTS_DOG = self::FACTS.'/dog';
+    // GET
+    public const FACTS_BIRD = self::FACTS.'/bird';
+    // GET
+    public const FACTS_RED_PANDA = self::FACTS.'/red_panda';
 
     /**
      * Regex to identify parameters in endpoints.

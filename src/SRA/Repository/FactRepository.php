@@ -17,7 +17,7 @@ use Discord\Helpers\Collection;
 use Discord\Helpers\ExCollectionInterface;
 use Discord\Http\Endpoint;
 use SRA\Http\Endpoint as HttpEndpoint;
-use SRA\Parts\Card;
+use SRA\Parts\Fact;
 use React\Promise\PromiseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use WeakReference;
@@ -27,33 +27,33 @@ use function React\Promise\reject;
 use function React\Promise\resolve;
 
 /**
- * Repository for managing Magic: The Gathering cards.
+ * Repository for managing facts from the SRA API.
  *
  * @since 0.3.0
  */
-class CardRepository extends AbstractRepository
+class FactRepository extends AbstractRepository
 {
     /**
      * @inheritDoc
      */
     protected $endpoints = [
-        'all' => HttpEndpoint::CARDS,
-        'get' => HttpEndpoint::CARD,
+        'all' => HttpEndpoint::FACTS,
+        'get' => HttpEndpoint::FACT,
     ];
 
     /**
      * @inheritDoc
      */
-    protected $class = Card::class;
+    protected $class = Fact::class;
 
     /**
      * Fetch card information by query parameters.
      *
-     * @param Card|array $params
+     * @param Fact|array $params
      *
-     * @return PromiseInterface<ExCollectionInterface<Card>|Card[]>
+     * @return PromiseInterface<ExCollectionInterface<Fact>|Fact[]>
      */
-    public function getCards(Card|array $params = []): PromiseInterface
+    public function getFact(Fact|array $params = []): PromiseInterface
     {
         if ($params instanceof Card) {
             $params = $params->jsonSerialize();

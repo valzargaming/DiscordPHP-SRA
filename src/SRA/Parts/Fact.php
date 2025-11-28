@@ -16,20 +16,15 @@ namespace SRA\Parts;
 use Discord\Parts\Part;
 
 /**
- * Represents a legality associated with a card.
+ * A fact returned by the SRA API.
  *
- * @property string $format   The format of the card.
- * @property string $legality The legality status of the card in the format.
+ * @property string $fact The fact.
  *
- * @since 0.3.0
+ * @since 0.1.0
  */
-class Legality extends Part
+class Fact extends Part
 {
-    /**
-     * @inheritDoc
-     */
     protected $fillable = [
-        'format',
-        'legality',
+        'fact',
     ];
 }
