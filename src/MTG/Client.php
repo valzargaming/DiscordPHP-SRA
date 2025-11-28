@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG;
+namespace SRA;
 
 use Discord\Parts\User\Client as DiscordClient;
 use Discord\Repository\EmojiRepository;
@@ -19,8 +19,8 @@ use Discord\Repository\GuildRepository;
 use Discord\Repository\PrivateChannelRepository;
 use Discord\Repository\SoundRepository;
 use Discord\Repository\UserRepository;
-use MTG\Repository\CardRepository;
-use MTG\Repository\SetRepository;
+use SRA\Repository\CardRepository;
+use SRA\Repository\SetRepository;
 
 class Client extends DiscordClient
 {

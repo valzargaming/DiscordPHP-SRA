@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,27 +11,27 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG;
+namespace SRA;
 
 use Discord\Discord;
 use Discord\Http\Drivers\React;
 use Discord\Stats;
-use MTG\Http\Http;
-use MTG\Repository\CardRepository;
+use SRA\Http\Http;
+use SRA\Repository\CardRepository;
 
 /**
- * The MTG client class.
+ * The SRA client class.
  *
  * @version 1.0.0
  *
  * @property CardRepository $cards
  * @property SetRepository  $sets
  */
-class MTG extends Discord
+class SRA extends Discord
 {
     use HelperTrait;
 
-    public const string GITHUB = 'https://github.com/discord-php/DiscordPHP-MTG';
+    public const string GITHUB = 'https://github.com/discord-php/DiscordPHP-SRA';
 
     protected Stats $stats;
 
@@ -40,7 +40,7 @@ class MTG extends Discord
      *
      * @var Http Extended Discord HTTP client.
      */
-    protected $mtg_http;
+    protected $sra_http;
 
     /**
      * The extended Client class.
@@ -53,7 +53,7 @@ class MTG extends Discord
     {
         parent::__construct($options);
 
-        $this->mtg_http = new Http(
+        $this->sra_http = new Http(
             'Bot '.$this->token,
             $this->loop,
             $this->options['logger'] ?? null,
@@ -64,13 +64,13 @@ class MTG extends Discord
     }
 
     /**
-     * Gets the MTG HTTP client.
+     * Gets the SRA HTTP client.
      *
      * @return Http
      */
-    public function getMtgHttpClient(): Http
+    public function getSRAHttpClient(): Http
     {
-        return $this->mtg_http;
+        return $this->sra_http;
     }
 
     /**
@@ -82,7 +82,7 @@ class MTG extends Discord
      */
     public function __get(string $name)
     {
-        static $allowed = ['loop', 'options', 'logger', 'http', 'mtg_http', 'application_commands'];
+        static $allowed = ['loop', 'options', 'logger', 'http', 'sra_http', 'application_commands'];
 
         if (in_array($name, $allowed)) {
             return $this->{$name};

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG\Http;
+namespace SRA\Http;
 
 use Discord\Http\DriverInterface;
 use Discord\Http\Endpoint;
@@ -33,21 +33,21 @@ class Http implements HttpInterface
     use HttpTrait;
 
     /**
-     * MTG Http version.
+     * SRA Http version.
      *
      * @var string
      */
     public const VERSION = 'v1.0.0';
 
     /**
-     * Current MTG HTTP API version.
+     * Current SRA HTTP API version.
      *
      * @var string
      */
     public const HTTP_API_VERSION = 1;
 
     /**
-     * MTG API base URL.
+     * SRA API base URL.
      *
      * @var string
      */

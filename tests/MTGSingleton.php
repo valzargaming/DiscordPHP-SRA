@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -9,26 +9,26 @@
  * with this source code in the LICENSE.md file.
  */
 
-use MTG\MTG;
+use SRA\SRA;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use React\EventLoop\Loop;
 
-class MTGSingleton
+class SRASingleton
 {
-    private static $mtg;
+    private static $sra;
 
     /**
-     * @return MTG
+     * @return SRA
      */
     public static function get()
     {
-        if (! self::$mtg) {
+        if (! self::$sra) {
             self::new_cache();
         }
 
-        return self::$mtg;
+        return self::$sra;
     }
 
     private static function new_cache()
@@ -45,14 +45,14 @@ class MTGSingleton
         //$psr6Cache = new \Symfony\Component\Cache\Adapter\MemcachedAdapter($memcached, 'dphp', 0);
         //$cache = new RedisPsr16($psr6Cache);
 
-        $logger = new Logger('MTGPHP-UnitTests');
+        $logger = new Logger('SRAPHP-UnitTests');
         $handler = new StreamHandler(fopen(__DIR__.'/../phpunit.log', 'w'));
         $formatter = new LineFormatter(null, null, true, true);
         $handler->setFormatter($formatter);
         $logger->pushHandler($handler);
 
-        $mtg = new MTG([
-            'token' => getenv('MTG_TOKEN'),
+        $sra = new SRA([
+            'token' => getenv('SRA_TOKEN'),
             'loop' => $loop,
             'logger' => $logger,
             'cache' => $cache,
@@ -60,18 +60,18 @@ class MTGSingleton
 
         $e = null;
 
-        $timer = $mtg->getLoop()->addTimer(10, function () use (&$e) {
-            $e = new Exception('Timed out trying to connect to MTG.');
+        $timer = $sra->getLoop()->addTimer(10, function () use (&$e) {
+            $e = new Exception('Timed out trying to connect to SRA.');
         });
 
-        $mtg->on('ready', function (MTG $mtg) use ($timer) {
-            $mtg->getLoop()->cancelTimer($timer);
-            $mtg->getLoop()->stop();
+        $sra->on('ready', function (SRA $sra) use ($timer) {
+            $sra->getLoop()->cancelTimer($timer);
+            $sra->getLoop()->stop();
         });
 
-        self::$mtg = $mtg;
+        self::$sra = $sra;
 
-        $mtg->run();
+        $sra->run();
 
         if ($e !== null) {
             throw $e;
@@ -80,34 +80,34 @@ class MTGSingleton
 
     private static function new()
     {
-        $logger = new Logger('MTGPHP-UnitTests');
+        $logger = new Logger('SRAPHP-UnitTests');
         $handler = new StreamHandler(fopen(__DIR__.'/../phpunit.log', 'w'));
         $formatter = new LineFormatter(null, null, true, true);
         $handler->setFormatter($formatter);
         $logger->pushHandler($handler);
 
-        $mtg = new MTG([
-            'token' => getenv('MTG_TOKEN'),
+        $sra = new SRA([
+            'token' => getenv('SRA_TOKEN'),
             'logger' => $logger,
         ]);
 
         $e = null;
 
-        $timer = $mtg->getLoop()->addTimer(10, function () use (&$e) {
-            $e = new Exception('Timed out trying to connect to MTG.');
+        $timer = $sra->getLoop()->addTimer(10, function () use (&$e) {
+            $e = new Exception('Timed out trying to connect to SRA.');
         });
 
-        $mtg->on('ready', function (MTG $mtg) use ($timer) {
-            $mtg->getLoop()->cancelTimer($timer);
-            $mtg->getLoop()->stop();
+        $sra->on('ready', function (SRA $sra) use ($timer) {
+            $sra->getLoop()->cancelTimer($timer);
+            $sra->getLoop()->stop();
         });
 
-        $mtg->getLoop()->run();
+        $sra->getLoop()->run();
 
         if ($e !== null) {
             throw $e;
         }
 
-        self::$mtg = $mtg;
+        self::$sra = $sra;
     }
 }

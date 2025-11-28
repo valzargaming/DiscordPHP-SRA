@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,10 +11,10 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG\Repository;
+namespace SRA\Repository;
 
 use Discord\Repository\AbstractRepository as DiscordAbstractRepository;
-use MTG\MTG;
+use SRA\SRA;
 
 /**
  * Repositories provide a way to store and update parts on the Discord server.
@@ -28,12 +28,12 @@ abstract class AbstractRepository extends DiscordAbstractRepository
     /**
      * AbstractRepository constructor.
      *
-     * @param MTG   $mtg
+     * @param SRA   $sra
      * @param array $vars An array of variables used for the endpoint.
      */
-    public function __construct(protected $mtg, array $vars = [])
+    public function __construct(protected $sra, array $vars = [])
     {
-        parent::__construct($mtg, $vars);
-        $this->mtg_http = $mtg->getMtgHttpClient();
+        parent::__construct($sra, $vars);
+        $this->sra_http = $sra->getSRAHttpClient();
     }
 }

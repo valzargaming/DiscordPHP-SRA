@@ -14,7 +14,7 @@
     <testsuites>
         <testsuite name="default">
             <directory suffix="Test.php">tests</directory>
-            <!--<file>tests/MTGTest.php</file>-->
+            <!--<file>tests/SRATest.php</file>-->
         </testsuite>
     </testsuites>
 

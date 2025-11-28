@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -12,19 +12,19 @@ declare(strict_types=1);
  */
 
 use Discord\Helpers\ExCollectionInterface;
-use MTG\MTG;
-use MTG\Parts\Card;
+use SRA\SRA;
+use SRA\Parts\Card;
 use PHPUnit\Framework\TestCase;
 
-final class MTGTest extends TestCase
+final class SRATest extends TestCase
 {
     public function testCardInfoRetrieval()
     {
-        wait(function (MTG $mtg, $resolve) {
+        wait(function (SRA $sra, $resolve) {
             /** @var Card $card */
-            $card = $mtg->getFactory()->part(Card::class);
+            $card = $sra->getFactory()->part(Card::class);
             $card->setPageSize(1);
-            $mtg->cards->getCards(['name' => 'Black Lotus'])->then(function (ExCollectionInterface $cards) {
+            $sra->cards->getCards(['name' => 'Black Lotus'])->then(function (ExCollectionInterface $cards) {
                 $this->assertInstanceOf(ExCollectionInterface::class, $cards);
                 $this->assertInstanceOf(Card::class, $cards->first());
             })->then($resolve, $resolve);

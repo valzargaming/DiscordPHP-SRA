@@ -1,7 +1,7 @@
 <?php
 
 $header = <<<'EOF'
-This file is a part of the DiscordPHP-MTG project.
+This file is a part of the DiscordPHP-SRA project.
 
 Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
 

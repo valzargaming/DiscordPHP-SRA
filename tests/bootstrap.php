@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -14,5 +14,5 @@ include __DIR__.'/../vendor/autoload.php';
 //class RedisPsr16 extends \Symfony\Component\Cache\Psr16Cache {}
 
 include __DIR__.'/functions.php';
-include __DIR__.'/MTGSingleton.php';
-include __DIR__.'/MTGTestCase.php';
+include __DIR__.'/SRASingleton.php';
+include __DIR__.'/SRATestCase.php';

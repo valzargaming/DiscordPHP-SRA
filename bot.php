@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG;
+namespace SRA;
 
 //use Clue\React\Redis\Factory as Redis;
 use Discord\Builders\CommandBuilder;
@@ -33,7 +33,7 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
-use MTG\Parts\Card;
+use SRA\Parts\Card;
 use React\EventLoop\Loop;
 
 use function React\Async\async;
@@ -43,7 +43,7 @@ $technician_id = getenv('technician_id') ?: '116927250145869826'; // Default to 
 
 ini_set('zend.assertions', '1'); // Enable assertions for development
 
-define('MTGCARDINFOBOT_START', microtime(true));
+define('SRACARDINFOBOT_START', microtime(true));
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -95,7 +95,7 @@ $env_path ? loadEnv($env_path) : throw new \Exception('The .env file does not ex
 
 $streamHandler = new StreamHandler('php://stdout', Level::Debug);
 $streamHandler->setFormatter(new LineFormatter(null, null, true, true, true));
-$logger = new Logger('MTGCARDINFOBOT', [$streamHandler]);
+$logger = new Logger('SRACARDINFOBOT', [$streamHandler]);
 //file_put_contents('output.log', ''); // Clear the contents of 'output.log'
 //$logger->pushHandler(new StreamHandler('output.log', Level::Debug));
 $logger->info('Loading configurations for the bot...');
@@ -104,7 +104,7 @@ set_rejection_handler(function (\Throwable $e) use ($logger): void {
     $logger->warning("Unhandled Promise Rejection: {$e->getMessage()} [{$e->getFile()}:{$e->getLine()}] ".str_replace('#', '\n#', $e->getTraceAsString()));
 });
 
-$mtg = new MTG([
+$sra = new SRA([
     'loop' => Loop::get(),
     'logger' => $logger,
     'socket_options' => [
@@ -131,17 +131,17 @@ $mtg = new MTG([
 $webapi = null;
 $socket = null;
 
-$global_error_handler = async(function (int $errno, string $errstr, ?string $errfile, ?int $errline) use (&$mtg, &$logger, &$technician_id) {
-    if (! $mtg instanceof MTG) {
+$global_error_handler = async(function (int $errno, string $errstr, ?string $errfile, ?int $errline) use (&$sra, &$logger, &$technician_id) {
+    if (! $sra instanceof SRA) {
         return;
     }
     $logger->error($msg = sprintf("[%d] Fatal error on `%s:%d`: %s\nBacktrace:\n```\n%s\n```", $errno, $errfile, $errline, $errstr, implode("\n", array_map(fn ($trace) => ($trace['file'] ?? '').':'.($trace['line'] ?? '').($trace['function'] ?? ''), debug_backtrace()))));
     if (getenv('TESTING')) {
         return;
     }
-    $promise = $mtg->users->fetch($technician_id);
+    $promise = $sra->users->fetch($technician_id);
     $promise = $promise->then(fn (User $user) => $user->getPrivateChannel());
-    $promise = $promise->then(fn (Channel $channel) => $channel->sendMessage(MTG::createBuilder()->setContent($msg)));
+    $promise = $promise->then(fn (Channel $channel) => $channel->sendMessage(SRA::createBuilder()->setContent($msg)));
 });
 set_error_handler($global_error_handler);
 
@@ -168,8 +168,8 @@ $socket = new SocketServer(
  */
 $webapi = new HttpServer(Loop::get(), async(
     fn (ServerRequestInterface $request): Response =>
-    /** @var ?MTG $mtg */
-    ($mtg instanceof MTG)
+    /** @var ?SRA $sra */
+    ($sra instanceof SRA)
         ? new Response(Response::STATUS_IM_A_TEAPOT, ['Content-Type' => 'text/plain'], 'Service Not Yet Implemented')
         : new Response(Response::STATUS_SERVICE_UNAVAILABLE, ['Content-Type' => 'text/plain'], 'Service Unavailable')
 ));
@@ -184,11 +184,11 @@ $webapi = new HttpServer(Loop::get(), async(
  *
  * @param \Exception                              $e       The \exception object representing the error.
  * @param \Psr\Http\Message\RequestInterface|null $request The HTTP request object associated with the error, if available.
- * @param object                                  $mtg     The main object of the application.
+ * @param object                                  $sra     The main object of the application.
  * @param object                                  $socket  The socket object.
  * @param bool                                    $testing Flag indicating if the script is running in testing mode.
  */
-$webapi->on('error', async(function (\Exception $e, ?\Psr\Http\Message\RequestInterface $request = null) use (&$mtg, &$logger, &$socket, $technician_id) {
+$webapi->on('error', async(function (\Exception $e, ?\Psr\Http\Message\RequestInterface $request = null) use (&$sra, &$logger, &$socket, $technician_id) {
     if (str_starts_with($e->getMessage(), 'Received request with invalid protocol version')) {
         return;
     }
@@ -200,32 +200,32 @@ $webapi->on('error', async(function (\Exception $e, ?\Psr\Http\Message\RequestIn
         return;
     }
     $logger->error('[WEBAPI] ERROR - RESTART');
-    if (! $mtg instanceof MTG) {
+    if (! $sra instanceof SRA) {
         return;
     }
     $socket->close();
     if (getenv('TESTING')) {
         return;
     }
-    $promise = $mtg->users->fetch($technician_id);
+    $promise = $sra->users->fetch($technician_id);
     $promise = $promise->then(fn (User $user) => $user->getPrivateChannel());
-    $promise = $promise->then(fn (Channel $channel) => $channel->sendMessage(MTG::createBuilder()->setContent('Restarting due to error in HttpServer API...')));
+    $promise = $promise->then(fn (Channel $channel) => $channel->sendMessage(SRA::createBuilder()->setContent('Restarting due to error in HttpServer API...')));
 }));
 
-$func = function (MTG $mtg) {
-    $mtg->emojis->freshen()
-        ->then(fn (EmojiRepository $emojis) => $mtg->application->commands->freshen())
-        ->then(function (GlobalCommandRepository $commands) use ($mtg): void {
+$func = function (SRA $sra) {
+    $sra->emojis->freshen()
+        ->then(fn (EmojiRepository $emojis) => $sra->application->commands->freshen())
+        ->then(function (GlobalCommandRepository $commands) use ($sra): void {
             if ($names = array_map(fn ($command) => $command->name, iterator_to_array($commands))) {
-                $mtg->logger->debug('[GLOBAL APPLICATION COMMAND LIST] `'.implode('`, `', $names).'`');
+                $sra->logger->debug('[GLOBAL APPLICATION COMMAND LIST] `'.implode('`, `', $names).'`');
             }
 
-            $mtg->listenCommand(
+            $sra->listenCommand(
                 $name = 'card_search',
                 fn (Interaction $interaction) => $interaction->acknowledgeWithResponse(true)
-                ->then(fn () => $mtg->cards->getCards(array_map(fn ($option) => $option->value, $interaction->data->options->toArray())))
-                ->then(function (ExCollectionInterface $cards) use ($mtg, $interaction): PromiseInterface {
-                    $builder = MTG::createBuilder();
+                ->then(fn () => $sra->cards->getCards(array_map(fn ($option) => $option->value, $interaction->data->options->toArray())))
+                ->then(function (ExCollectionInterface $cards) use ($sra, $interaction): PromiseInterface {
+                    $builder = SRA::createBuilder();
 
                     if (! $card = $cards->first()) {
                         return $interaction->updateOriginalResponse($builder->setContent('No card found matching the search criteria.'));
@@ -237,9 +237,9 @@ $func = function (MTG $mtg) {
                     }
 
                     if ($ci = (! is_array($card_ci = $card->colorIdentity)
-                        ? $mtg->colorIdentityToInteger(null)
+                        ? $sra->colorIdentityToInteger(null)
                         : ((count($card_ci) === 1)
-                            ? $mtg->colorIdentityToInteger($card_ci[0])
+                            ? $sra->colorIdentityToInteger($card_ci[0])
                             : null))
                     ) {
                         $container->setAccentColor($ci);
@@ -265,7 +265,7 @@ $func = function (MTG $mtg) {
                                 Separator::new(),
                                 ActionRow::new()->addComponents($buttons),
                                 Separator::new(),
-                                Button::link(MTG::GITHUB)->setLabel('GitHub'),
+                                Button::link(SRA::GITHUB)->setLabel('GitHub'),
                             ])
                         )
                     );
@@ -273,65 +273,65 @@ $func = function (MTG $mtg) {
             );
 
             if (! $command = $commands->get('name', $name = 'card_search')) {
-                $mtg->logger->debug("[GLOBAL APPLICATION COMMAND] Creating `$name` command...");
+                $sra->logger->debug("[GLOBAL APPLICATION COMMAND] Creating `$name` command...");
 
-                $option_name = $mtg->getFactory()->part(Option::class);
+                $option_name = $sra->getFactory()->part(Option::class);
                 /** @var Option $option_name */
                 $option_name
                     ->setName('name')
                     ->setDescription('nissa, worldwaker|jace|ajani, caller.')
                     ->setType(Option::STRING);
 
-                $option_cmc = $mtg->getFactory()->part(Option::class);
+                $option_cmc = $sra->getFactory()->part(Option::class);
                 /** @var Option $option_cmc */
                 $option_cmc
                     ->setName('cmc')
                     ->setDescription('Converted mana cost.')
                     ->setType(Option::INTEGER);
                 
-                $option_colorIdentity = $mtg->getFactory()->part(Option::class);
+                $option_colorIdentity = $sra->getFactory()->part(Option::class);
                 /** @var Option $option_colorIdentity */
                 $option_colorIdentity
                     ->setName('color_identity')
                     ->setDescription('W, U, B, R, G.')
                     ->setType(Option::STRING);
 
-                $option_types = $mtg->getFactory()->part(Option::class);
+                $option_types = $sra->getFactory()->part(Option::class);
                 /** @var Option $option_types */
                 $option_types
                     ->setName('types')
                     ->setDescription('Creature, Instant, Enchantment.')
                     ->setType(Option::STRING);
                 
-                $options_subtypes = $mtg->getFactory()->part(Option::class);
+                $options_subtypes = $sra->getFactory()->part(Option::class);
                 /** @var Option $options_subtypes */
                 $options_subtypes
                     ->setName('subtypes')
                     ->setDescription('Elf, Goblin, Dragon.')
                     ->setType(Option::STRING);
 
-                $options_gameFormat = $mtg->getFactory()->part(Option::class);
+                $options_gameFormat = $sra->getFactory()->part(Option::class);
                 /** @var Option $options_gameFormat */
                 $options_gameFormat
                     ->setName('game_format')
                     ->setDescription('Standard, Modern, Legacy, Vintage, Commander.')
                     ->setType(Option::STRING);
 
-                $options_contains = $mtg->getFactory()->part(Option::class);
+                $options_contains = $sra->getFactory()->part(Option::class);
                 /** @var Option $options_contains */
                 $options_contains
                     ->setName('contains')
                     ->setDescription('Filter cards based on whether or not they have a specific field available (like imageUrl).')
                     ->setType(Option::STRING);
 
-                $options_multiverseid = $mtg->getFactory()->part(Option::class);
+                $options_multiverseid = $sra->getFactory()->part(Option::class);
                 /** @var Option $options_multiverseid */
                 $options_multiverseid
                     ->setName('multiverseid')
                     ->setDescription('The multiverse ID of the card.')
                     ->setType(Option::INTEGER);
 
-                $options_legality = $mtg->getFactory()->part(Option::class);
+                $options_legality = $sra->getFactory()->part(Option::class);
                 /** @var Option $options_legality */
                 $options_legality
                     ->setName('legality')
@@ -354,7 +354,7 @@ $func = function (MTG $mtg) {
                     ->addOption($options_contains)
                     ->addOption($options_multiverseid)
                     ->addOption($options_legality);
-                $commands->save($mtg->application->commands->create($builder->toArray()));
+                $commands->save($sra->application->commands->create($builder->toArray()));
             }
             //var_dump($command);
             //$commands->delete($command);
@@ -363,21 +363,21 @@ $func = function (MTG $mtg) {
 
 $init_called = false;
 $application_init_called = false;
-$mtg->once('init', function (MTG $mtg) use (&$init_called, &$application_init_called, &$func) {
+$sra->once('init', function (SRA $sra) use (&$init_called, &$application_init_called, &$func) {
     $init_called = true;
     if (! $application_init_called) {
         return;
     }
-    $func($mtg);
+    $func($sra);
     unset($func, $init_called, $application_init_called);
 });
-$mtg->once('application-init', function (MTG $mtg) use (&$init_called, &$application_init_called, &$func) {
+$sra->once('application-init', function (SRA $sra) use (&$init_called, &$application_init_called, &$func) {
     $application_init_called = true;
     if (! $init_called) {
         return;
     }
-    $func($mtg);
+    $func($sra);
     unset($func, $init_called, $application_init_called);
 });
 
-$mtg->run();
+$sra->run();

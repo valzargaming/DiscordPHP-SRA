@@ -1,4 +1,4 @@
-# DiscordPHP-MTG
+# DiscordPHP-SRA
 
 A Magic: The Gathering API Library and bot for Discord, built using [DiscordPHP](https://github.com/discord-php/DiscordPHP).
 
@@ -16,8 +16,8 @@ A Magic: The Gathering API Library and bot for Discord, built using [DiscordPHP]
 
 1. Clone the repository:
    ```cmd
-   git clone https://github.com/discord-php-extended/discordphp-mtg.git
-   cd DiscordPHP-MTG
+   git clone https://github.com/discord-php-extended/discordphp-sra.git
+   cd DiscordPHP-SRA
    ```
 
 2. Install dependencies:

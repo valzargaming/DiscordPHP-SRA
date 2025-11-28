@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,39 +11,39 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-use MTG\MTG;
+use SRA\SRA;
 use Psr\Log\NullLogger;
 
 const TIMEOUT = 10;
 
 function wait(callable $callback, float $timeout = TIMEOUT, ?callable $timeoutFn = null)
 {
-    $mtg = MTGSingleton::get();
+    $sra = SRASingleton::get();
 
     $result = null;
     $finally = null;
     $timedOut = false;
 
-    $mtg->getLoop()->futureTick(function () use ($callback, $mtg, &$result, &$finally) {
-        $resolve = function ($x = null) use ($mtg, &$result) {
+    $sra->getLoop()->futureTick(function () use ($callback, $sra, &$result, &$finally) {
+        $resolve = function ($x = null) use ($sra, &$result) {
             $result = $x;
-            $mtg->getLoop()->stop();
+            $sra->getLoop()->stop();
         };
 
         try {
-            $finally = $callback($mtg, $resolve);
+            $finally = $callback($sra, $resolve);
         } catch (\Throwable $e) {
             $resolve($e);
         }
     });
 
-    $timeout = $mtg->getLoop()->addTimer($timeout, function () use ($mtg, &$timedOut) {
+    $timeout = $sra->getLoop()->addTimer($timeout, function () use ($sra, &$timedOut) {
         $timedOut = true;
-        $mtg->getLoop()->stop();
+        $sra->getLoop()->stop();
     });
 
-    $mtg->getLoop()->run();
-    $mtg->getLoop()->cancelTimer($timeout);
+    $sra->getLoop()->run();
+    $sra->getLoop()->cancelTimer($timeout);
 
     if ($result instanceof Exception) {
         throw $result;
@@ -64,7 +64,7 @@ function wait(callable $callback, float $timeout = TIMEOUT, ?callable $timeoutFn
     return $result;
 }
 
-function getMockMtg(): MTG
+function getMockSRA(): SRA
 {
-    return new MTG(['token' => '', 'logger' => new NullLogger()]);
+    return new SRA(['token' => '', 'logger' => new NullLogger()]);
 }

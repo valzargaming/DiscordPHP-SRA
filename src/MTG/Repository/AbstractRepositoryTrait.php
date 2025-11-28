@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,15 +11,15 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG\Repository;
+namespace SRA\Repository;
 
 use Discord\Factory\Factory;
 use Discord\Helpers\CacheWrapper;
 use Discord\Helpers\Collection;
 use Discord\Helpers\ExCollectionInterface;
 use Discord\Helpers\CollectionTrait;
-use MTG\Http\Endpoint;
-use MTG\Http\Http;
+use SRA\Http\Endpoint;
+use SRA\Http\Http;
 use Discord\Parts\Part;
 use React\Promise\PromiseInterface;
 use Traversable;
@@ -83,7 +83,7 @@ trait AbstractRepositoryTrait
      *
      * @var Http Client.
      */
-    protected $mtg_http;
+    protected $sra_http;
 
     /**
      * The parts factory.
@@ -133,7 +133,7 @@ trait AbstractRepositoryTrait
             $endpoint->addQuery($query, $param);
         }
 
-        return $this->mtg_http->get($endpoint)->then(function ($response) {
+        return $this->sra_http->get($endpoint)->then(function ($response) {
             foreach ($this->items as $offset => $value) {
                 if ($value === null) {
                     unset($this->items[$offset]);
@@ -221,7 +221,7 @@ trait AbstractRepositoryTrait
             $headers['X-Audit-Log-Reason'] = $reason;
         }
 
-        return $this->mtg_http->{$method}($endpoint, $attributes, $headers)->then(function ($response) use ($method, $part) {
+        return $this->sra_http->{$method}($endpoint, $attributes, $headers)->then(function ($response) use ($method, $part) {
             switch ($method) {
                 case 'patch': // Update old part
                     $part->fill((array) $response);
@@ -273,7 +273,7 @@ trait AbstractRepositoryTrait
             $headers['X-Audit-Log-Reason'] = $reason;
         }
 
-        return $this->mtg_http->delete($endpoint, null, $headers)->then(function ($response) use (&$part) {
+        return $this->sra_http->delete($endpoint, null, $headers)->then(function ($response) use (&$part) {
             if ($response) {
                 $part->fill((array) $response);
             }
@@ -310,7 +310,7 @@ trait AbstractRepositoryTrait
             $endpoint->addQuery($query, $param);
         }
 
-        return $this->mtg_http->get($endpoint)->then(function ($response) use (&$part) {
+        return $this->sra_http->get($endpoint)->then(function ($response) use (&$part) {
             $part->fill((array) $response);
 
             return $this->cache->set($part->{$this->discrim}, $part)->then(fn ($success) => $part);
@@ -360,7 +360,7 @@ trait AbstractRepositoryTrait
         $endpoint = new Endpoint($this->endpoints['get']);
         $endpoint->bindAssoc(array_merge($part->getRepositoryAttributes(), $this->vars));
 
-        return $this->mtg_http->get($endpoint)->then(function ($response) use ($part, $id) {
+        return $this->sra_http->get($endpoint)->then(function ($response) use ($part, $id) {
             $part->created = true;
             $part->fill(array_merge($this->vars, (array) $response));
 

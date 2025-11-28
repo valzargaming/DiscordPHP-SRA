@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,14 +11,14 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG\Repository;
+namespace SRA\Repository;
 
 use Discord\Helpers\Collection;
 use Discord\Helpers\ExCollectionInterface;
 use Discord\Http\Endpoint;
-use MTG\Http\Endpoint as HttpEndpoint;
-use MTG\Parts\Card;
-use MTG\Parts\Set;
+use SRA\Http\Endpoint as HttpEndpoint;
+use SRA\Parts\Card;
+use SRA\Parts\Set;
 use React\Promise\PromiseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use WeakReference;
@@ -107,7 +107,7 @@ class SetRepository extends AbstractRepository
             $endpoint->addQuery($key, $value);
         }
 
-        return $this->mtg_http->get($endpoint)->then(function ($response) {
+        return $this->sra_http->get($endpoint)->then(function ($response) {
             $response = $response->sets;
 
             $collection = Collection::for($this->class, $this->discrim);

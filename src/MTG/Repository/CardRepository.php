@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,13 +11,13 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG\Repository;
+namespace SRA\Repository;
 
 use Discord\Helpers\Collection;
 use Discord\Helpers\ExCollectionInterface;
 use Discord\Http\Endpoint;
-use MTG\Http\Endpoint as HttpEndpoint;
-use MTG\Parts\Card;
+use SRA\Http\Endpoint as HttpEndpoint;
+use SRA\Parts\Card;
 use React\Promise\PromiseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use WeakReference;
@@ -130,7 +130,7 @@ class CardRepository extends AbstractRepository
             $endpoint->addQuery($key, $value);
         }
 
-        return $this->mtg_http->get($endpoint)->then(function ($response) {
+        return $this->sra_http->get($endpoint)->then(function ($response) {
             $response = $response->cards;
 
             $collection = Collection::for($this->class);
@@ -212,7 +212,7 @@ class CardRepository extends AbstractRepository
         $endpoint = new Endpoint($this->endpoints['get']);
         $endpoint->bindAssoc(array_merge($part->getRepositoryAttributes(), $this->vars));
 
-        return $this->mtg_http->get($endpoint)->then(function ($response) use ($part, $id) {
+        return $this->sra_http->get($endpoint)->then(function ($response) use ($part, $id) {
             $response = $response->card;
             $part->created = true;
             $part->fill(array_merge($this->vars, (array) $response));

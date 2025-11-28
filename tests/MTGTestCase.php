@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -15,7 +15,7 @@ use Discord\Discord;
 use Discord\Parts\Channel\Channel;
 use PHPUnit\Framework\TestCase;
 
-class MTGTestCase extends TestCase
+class SRATestCase extends TestCase
 {
     protected static Channel $channel;
 

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG\Parts;
+namespace SRA\Parts;
 
 /**
  * This query will return a maximum of 100 cards.
@@ -33,7 +33,7 @@ namespace MTG\Parts;
  * @property int            $cmc           Converted mana cost. Always a number.
  * @property ?string[]|null $colors        The card colors. Usually derived from the casting cost, but some cards are special (like the back of dual sided cards and Ghostfire).
  * @property ?string[]|null $colorIdentity The card’s color identity, by color code. E.g., [“Red”, “Blue”] becomes [“R”, “U”]. Includes colors from the card’s rules text.
- * @property ?string|null   $type          The card type. This is the type you would see on the card if printed today. Note: The dash is a UTF8 ‘long dash’ as per the MTG rules.
+ * @property ?string|null   $type          The card type. This is the type you would see on the card if printed today. Note: The dash is a UTF8 ‘long dash’ as per the SRA rules.
  * @property ?string[]|null $supertypes    The supertypes of the card. These appear to the far left of the card type. Example: Basic, Legendary, Snow, World, Ongoing.
  * @property ?string[]|null $types         The types of the card. These appear to the left of the dash in a card type. Example: Instant, Sorcery, Artifact, Creature, Enchantment, Land, Planeswalker.
  * @property ?string[]|null $subtypes      The subtypes of the card. These appear to the right of the dash in a card type. Each word is its own subtype. Example: Trap, Arcane, Equipment, Aura, Human, Rat, Squirrel, etc.
@@ -42,7 +42,7 @@ namespace MTG\Parts;
  * @property ?string|null   $setName       The set name the card belongs to.
  * @property ?string|null   $text          The oracle text of the card. May contain mana symbols and other symbols.
  * @property ?string|null   $flavor        The flavor text of the card.
- * @property ?string|null   $artist        The artist of the card. May not match what is on the card as MTGJSON corrects many card misprints.
+ * @property ?string|null   $artist        The artist of the card. May not match what is on the card as SRAJSON corrects many card misprints.
  * @property ?string|null   $number        The card number. Printed at the bottom-center of the card in small text. This is a string, not an integer, because some cards have letters in their numbers.
  * @property ?string|null   $power         The power of the card. Only present for creatures. This is a string, not an integer, because some cards have powers like: “1+*”.
  * @property ?string|null   $toughness     The toughness of the card. Only present for creatures. This is a string, not an integer, because some cards have toughness like: “1+*”.

@@ -1,5 +1,5 @@
 {
-    "name": "discord-php-extended/discordphp-mtg",
+    "name": "discord-php-extended/discordphp-sra",
     "description": "API Library for api.magicthegathering.io built on top of DiscordPHP.",
     "license": "MIT",
     "authors": [
@@ -39,7 +39,7 @@
     },
     "autoload": {
         "psr-4": {
-            "MTG\\": "src/MTG/",
+            "SRA\\": "src/SRA/",
             "Discord\\": "src/Discord/"
         }
     }

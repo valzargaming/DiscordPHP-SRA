@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is a part of the DiscordPHP-MTG project.
+ * This file is a part of the DiscordPHP-SRA project.
  *
  * Copyright (c) 2025-present Valithor Obsidion <valithor@discordphp.org>
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  * with this source code in the LICENSE.md file.
  */
 
-namespace MTG\Parts;
+namespace SRA\Parts;
 
 use Carbon\Carbon;
 use Discord\Builders\Components\Button;
@@ -25,8 +25,8 @@ use Discord\Helpers\ExCollectionInterface;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\Part;
-use MTG\HelperTrait;
-use MTG\MTG;
+use SRA\HelperTrait;
+use SRA\SRA;
 use React\Promise\PromiseInterface;
 
 /**
@@ -243,11 +243,11 @@ class Card extends Part
      */
     public function normalLayoutContainer(?Interaction $interaction): Container
     {
-        /** @var HelperTrait $mtg */
-        $mtg = $this->discord;
+        /** @var HelperTrait $sra */
+        $sra = $this->discord;
 
         $ci_emoji = (($this->colorIdentity) ? implode('', array_map(fn ($c) => $this->discord->emojis->get('name', 'CI_'.$c.'_'), $this->colorIdentity)) : '');
-        $mana_cost = $mtg->encapsulatedSymbolsToEmojis($this->manaCost ?? '');
+        $mana_cost = $sra->encapsulatedSymbolsToEmojis($this->manaCost ?? '');
 
         $components = [TextDisplay::new("$ci_emoji {$this->name} $mana_cost")];
 
@@ -274,7 +274,7 @@ class Card extends Part
 
         if (isset($this->attributes['text'])) {
             $components[] = Separator::new();
-            $components[] = TextDisplay::new($mtg->encapsulatedSymbolsToEmojis($this->text));
+            $components[] = TextDisplay::new($sra->encapsulatedSymbolsToEmojis($this->text));
         }
 
         if (isset($this->attributes['power'], $this->attributes['toughness'])) {
@@ -310,7 +310,7 @@ class Card extends Part
             ->setLabel('JSON')
             ->setListener(
                 fn () => $interaction->sendFollowUpMessage(
-                    MTG::createBuilder()->addFileFromContent("{$this->id}.json", json_encode($this, JSON_PRETTY_PRINT)),
+                    SRA::createBuilder()->addFileFromContent("{$this->id}.json", json_encode($this, JSON_PRETTY_PRINT)),
                     true
                 ),
                 $this->getDiscord(),
@@ -338,7 +338,7 @@ class Card extends Part
             ->setLabel('View Image')
             ->setListener(
                 fn () => $interaction->sendFollowUpMessage(
-                    MTG::createBuilder()->addEmbed($this->image_embed),
+                    SRA::createBuilder()->addEmbed($this->image_embed),
                     true
                 ),
                 $this->getDiscord(),
@@ -362,18 +362,18 @@ class Card extends Part
             return null;
         }
 
-        /** @var MTG $mtg */
-        $mtg = $this->discord;
+        /** @var SRA $sra */
+        $sra = $this->discord;
 
         $button = Button::new(Button::STYLE_SECONDARY, "SET_{$this->setName}")->setLabel("{$this->set} - {$this->setName}");
 
         if ($interaction) {
             $button->setListener(
-                fn () => $mtg->sets->getSets($this)->then(
+                fn () => $sra->sets->getSets($this)->then(
                     fn (ExCollectionInterface $sets): PromiseInterface => $interaction->sendFollowUpMessage(
                         ($container = $sets->first()?->toContainer($interaction))
-                            ? MTG::createBuilder()->addComponent($container)
-                            : MTG::createBuilder()->setContent('No sets found.'),
+                            ? SRA::createBuilder()->addComponent($container)
+                            : SRA::createBuilder()->setContent('No sets found.'),
                         true
                     ),
                 ),
@@ -423,7 +423,7 @@ class Card extends Part
             ->setLabel('Foreign Names')
             ->setListener(
                 fn () => $interaction->sendFollowUpMessage(
-                    MTG::createBuilder()->setContent($foreign_text),
+                    SRA::createBuilder()->setContent($foreign_text),
                     true
                 ),
                 $this->getDiscord(),
@@ -467,7 +467,7 @@ class Card extends Part
             ->setLabel('Legalities')
             ->setListener(
                 fn () => $interaction->sendFollowUpMessage(
-                    MTG::createBuilder()->setContent($legalities_text),
+                    SRA::createBuilder()->setContent($legalities_text),
                     true
                 ),
                 $this->getDiscord(),
@@ -502,7 +502,7 @@ class Card extends Part
             ->setLabel('Rulings')
             ->setListener(
                 fn () => $interaction->sendFollowUpMessage(
-                    MTG::createBuilder()->setContent($rulings_text),
+                    SRA::createBuilder()->setContent($rulings_text),
                     true
                 ),
                 $this->getDiscord(),
