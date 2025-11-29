@@ -17,15 +17,16 @@ use Discord\Discord;
 use Discord\Http\Drivers\React;
 use Discord\Stats;
 use SRA\Http\Http;
-use SRA\Repository\CardRepository;
+use SRA\Repository\AnimalRepository;
+use SRA\Repository\FactsRepository;
 
 /**
  * The SRA client class.
  *
  * @version 1.0.0
  *
- * @property CardRepository $cards
- * @property SetRepository  $sets
+ * @property AnimalRepository $animls
+ * @property FactsRepository  $facts
  */
 class SRA extends Discord
 {
