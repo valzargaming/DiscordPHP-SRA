@@ -49,6 +49,31 @@ class Endpoint implements EndpointInterface
     // GET
     public const FACTS_RED_PANDA = self::FACTS.'/red_panda';
 
+    // GET
+    public const ANIMAL = 'animal';
+    // GET
+    public const ANIMAL_FOX = self::ANIMAL.'/fox';
+    // GET
+    public const ANIMAL_CAT = self::ANIMAL.'/cat';
+    // GET
+    public const ANIMAL_BIRB = self::ANIMAL.'/birb';
+    // GET
+    public const ANIMAL_PANDA = self::ANIMAL.'/panda';
+    // GET
+    public const ANIMAL_RED_PANDA = self::ANIMAL.'/red_panda';
+    // GET
+    public const ANIMAL_RACOON = self::ANIMAL.'/racoon';
+    // GET
+    public const ANIMAL_KANGAROO = self::ANIMAL.'/kangaroo';
+    // GET
+    public const ANIMAL_WHALE = self::ANIMAL.'/whale';
+    // GET
+    public const ANIMAL_DOG = self::ANIMAL.'/dog';
+    // GET
+    public const ANIMAL_BIRD = self::ANIMAL.'/bird';
+    // GET
+    public const ANIMAL_KOALA = self::ANIMAL.'/koala';
+
     /**
      * Regex to identify parameters in endpoints.
      *

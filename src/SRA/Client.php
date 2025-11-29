@@ -19,8 +19,8 @@ use Discord\Repository\GuildRepository;
 use Discord\Repository\PrivateChannelRepository;
 use Discord\Repository\SoundRepository;
 use Discord\Repository\UserRepository;
-use SRA\Repository\CardRepository;
-use SRA\Repository\SetRepository;
+use SRA\Repository\AnimalRepository;
+use SRA\Repository\FactsRepository;
 
 class Client extends DiscordClient
 {
@@ -33,7 +33,7 @@ class Client extends DiscordClient
         'private_channels' => PrivateChannelRepository::class,
         'sounds' => SoundRepository::class,
         'users' => UserRepository::class,
-        'cards' => CardRepository::class,
-        'sets' => SetRepository::class,
+        'cards' => AnimalRepository::class,
+        'sets' => FactsRepository::class,
     ];
 }
