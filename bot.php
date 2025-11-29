@@ -13,16 +13,11 @@ declare(strict_types=1);
 
 namespace SRA;
 
-//use Clue\React\Redis\Factory as Redis;
 use Discord\Builders\CommandBuilder;
-use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\Components\Separator;
-//use Discord\Helpers\CacheConfig;
-use Discord\Helpers\ExCollectionInterface;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Interactions\Command\Command;
-use Discord\Parts\Interactions\Command\Option;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\OAuth\Application;
 use Discord\Parts\User\User;
@@ -33,7 +28,6 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
-use SRA\Parts\Card;
 use React\EventLoop\Loop;
 
 use function React\Async\async;
@@ -116,16 +110,6 @@ $sra = new SRA([
     'useTransportCompression' => false, // Disable zlib-stream
     'usePayloadCompression' => true, // RFC1950 2.2
     //'loadAllMembers' => true,
-    /*
-    'cache' => new CacheConfig(
-        $interface = new RedisCache(
-            (new Redis(Loop::get()))->createLazyClient('127.0.0.1:6379'),
-            'dphp:cache:
-        '),
-        $compress = true, // Enable compression if desired
-        $sweep = false // Disable automatic cache sweeping if desired
-    ),
-    */
 ]);
 
 $webapi = null;
@@ -150,6 +134,8 @@ use React\Http\HttpServer;
 use React\Http\Message\Response;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Promise\PromiseInterface;
+use SRA\Parts\Animal;
+use SRA\Parts\Fact;
 
 $socket = new SocketServer(
     sprintf('%s:%s', '0.0.0.0', getenv('http_port') ?: 55555),
@@ -221,139 +207,66 @@ $func = function (SRA $sra) {
             }
 
             $sra->listenCommand(
-                $name = 'card_search',
+                $name = 'birdfact',
                 fn (Interaction $interaction) => $interaction->acknowledgeWithResponse(true)
-                ->then(fn () => $sra->cards->getCards(array_map(fn ($option) => $option->value, $interaction->data->options->toArray())))
-                ->then(function (ExCollectionInterface $cards) use ($sra, $interaction): PromiseInterface {
-                    $builder = SRA::createBuilder();
-
-                    if (! $card = $cards->first()) {
-                        return $interaction->updateOriginalResponse($builder->setContent('No card found matching the search criteria.'));
-                    }
-
-                    /** @var Card $card */
-                    if (! $container = $card->toContainer($interaction)) {
-                        return $interaction->updateOriginalResponse($builder->setContent('A card was found, but it is not supported for display.')->addFileFromContent('card.json', json_encode($card, JSON_PRETTY_PRINT)));
-                    }
-
-                    if ($ci = (! is_array($card_ci = $card->colorIdentity)
-                        ? $sra->colorIdentityToInteger(null)
-                        : ((count($card_ci) === 1)
-                            ? $sra->colorIdentityToInteger($card_ci[0])
-                            : null))
-                    ) {
-                        $container->setAccentColor($ci);
-                    }
-
-                    $buttons = [$card->getJsonButton($interaction)];
-                    if ($view_image_button = $card->getViewImageButton($interaction)) {
-                        $buttons[] = $view_image_button;
-                    }
-                    if ($legalities_button = $card->getLegalitiesButton($interaction)) {
-                        $buttons[] = $legalities_button;
-                    }
-                    if ($rulings_button = $card->getRulingsButton($interaction)) {
-                        $buttons[] = $rulings_button;
-                    }
-                    if ($foreign_button = $card->getForeignNamesButton($interaction)) {
-                        $buttons[] = $foreign_button;
-                    }
-
-                    return $interaction->updateOriginalResponse(
-                        $builder->addComponent(
-                            $container->addComponents([
-                                Separator::new(),
-                                ActionRow::new()->addComponents($buttons),
-                                Separator::new(),
-                                Button::link(SRA::GITHUB)->setLabel('GitHub'),
-                            ])
-                        )
-                    );
+                    ->then(fn () => $sra->facts->bird())
+                    ->then(function (Fact $bird) use ($interaction): PromiseInterface {
+                        $builder = SRA::createBuilder();
+                        $container = $bird->toContainer();
+                        return $interaction->updateOriginalResponse(
+                            $builder->addComponent(
+                                $container->addComponents([
+                                    Separator::new(),
+                                    //ActionRow::new()->addComponents($buttons),
+                                    //Separator::new(),
+                                    Button::link(SRA::GITHUB)->setLabel('GitHub'),
+                                ])
+                            )
+                        );
                 })
             );
 
-            if (! $command = $commands->get('name', $name = 'card_search')) {
+            $sra->listenCommand(
+                $name = 'birdfactimage',
+                fn (Interaction $interaction) => $interaction->acknowledgeWithResponse(true)
+                    ->then(fn () => $sra->animals->bird())
+                    ->then(function (Animal $bird) use ($interaction): PromiseInterface {
+                        $builder = SRA::createBuilder();
+                        $container = $bird->toContainer();
+                        return $interaction->updateOriginalResponse(
+                            $builder->addComponent(
+                                $container->addComponents([
+                                    Separator::new(),
+                                    //ActionRow::new()->addComponents($buttons),
+                                    //Separator::new(),
+                                    Button::link(SRA::GITHUB)->setLabel('GitHub'),
+                                ])
+                            )
+                        );
+                })
+            );
+
+            if (! $command = $commands->get('name', $name = 'birdfact')) {
                 $sra->logger->debug("[GLOBAL APPLICATION COMMAND] Creating `$name` command...");
-
-                $option_name = $sra->getFactory()->part(Option::class);
-                /** @var Option $option_name */
-                $option_name
-                    ->setName('name')
-                    ->setDescription('nissa, worldwaker|jace|ajani, caller.')
-                    ->setType(Option::STRING);
-
-                $option_cmc = $sra->getFactory()->part(Option::class);
-                /** @var Option $option_cmc */
-                $option_cmc
-                    ->setName('cmc')
-                    ->setDescription('Converted mana cost.')
-                    ->setType(Option::INTEGER);
-                
-                $option_colorIdentity = $sra->getFactory()->part(Option::class);
-                /** @var Option $option_colorIdentity */
-                $option_colorIdentity
-                    ->setName('color_identity')
-                    ->setDescription('W, U, B, R, G.')
-                    ->setType(Option::STRING);
-
-                $option_types = $sra->getFactory()->part(Option::class);
-                /** @var Option $option_types */
-                $option_types
-                    ->setName('types')
-                    ->setDescription('Creature, Instant, Enchantment.')
-                    ->setType(Option::STRING);
-                
-                $options_subtypes = $sra->getFactory()->part(Option::class);
-                /** @var Option $options_subtypes */
-                $options_subtypes
-                    ->setName('subtypes')
-                    ->setDescription('Elf, Goblin, Dragon.')
-                    ->setType(Option::STRING);
-
-                $options_gameFormat = $sra->getFactory()->part(Option::class);
-                /** @var Option $options_gameFormat */
-                $options_gameFormat
-                    ->setName('game_format')
-                    ->setDescription('Standard, Modern, Legacy, Vintage, Commander.')
-                    ->setType(Option::STRING);
-
-                $options_contains = $sra->getFactory()->part(Option::class);
-                /** @var Option $options_contains */
-                $options_contains
-                    ->setName('contains')
-                    ->setDescription('Filter cards based on whether or not they have a specific field available (like imageUrl).')
-                    ->setType(Option::STRING);
-
-                $options_multiverseid = $sra->getFactory()->part(Option::class);
-                /** @var Option $options_multiverseid */
-                $options_multiverseid
-                    ->setName('multiverseid')
-                    ->setDescription('The multiverse ID of the card.')
-                    ->setType(Option::INTEGER);
-
-                $options_legality = $sra->getFactory()->part(Option::class);
-                /** @var Option $options_legality */
-                $options_legality
-                    ->setName('legality')
-                    ->setDescription('Legal, Banned or Restricted.')
-                    ->setType(Option::STRING);
-                
                 $builder = CommandBuilder::new()
                     ->setName($name)
                     ->setType(Command::CHAT_INPUT)
-                    ->setDescription('Search for a card. See docs.magicthegathering.io/#api_v1cards_list for details.')
+                    ->setDescription('Get a random bird fact.')
                     ->setContext([Interaction::CONTEXT_TYPE_GUILD, Interaction::CONTEXT_TYPE_BOT_DM, Interaction::CONTEXT_TYPE_PRIVATE_CHANNEL])
                     ->addIntegrationType(Application::INTEGRATION_TYPE_GUILD_INSTALL)
-                    ->addIntegrationType(Application::INTEGRATION_TYPE_USER_INSTALL)
-                    ->addOption($option_name)
-                    ->addOption($option_cmc)
-                    ->addOption($option_colorIdentity)
-                    ->addOption($option_types)
-                    ->addOption($options_subtypes)
-                    ->addOption($options_gameFormat)
-                    ->addOption($options_contains)
-                    ->addOption($options_multiverseid)
-                    ->addOption($options_legality);
+                    ->addIntegrationType(Application::INTEGRATION_TYPE_USER_INSTALL);
+                $commands->save($sra->application->commands->create($builder->toArray()));
+            }
+
+            if (! $command = $commands->get('name', $name = 'birdfactimage')) {
+                $sra->logger->debug("[GLOBAL APPLICATION COMMAND] Creating `$name` command...");
+                $builder = CommandBuilder::new()
+                    ->setName($name)
+                    ->setType(Command::CHAT_INPUT)
+                    ->setDescription('Get a random bird fact with an image.')
+                    ->setContext([Interaction::CONTEXT_TYPE_GUILD, Interaction::CONTEXT_TYPE_BOT_DM, Interaction::CONTEXT_TYPE_PRIVATE_CHANNEL])
+                    ->addIntegrationType(Application::INTEGRATION_TYPE_GUILD_INSTALL)
+                    ->addIntegrationType(Application::INTEGRATION_TYPE_USER_INSTALL);
                 $commands->save($sra->application->commands->create($builder->toArray()));
             }
             //var_dump($command);
