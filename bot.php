@@ -208,7 +208,7 @@ $func = function (SRA $sra) {
 
             $sra->listenCommand(
                 $name = 'birdfact',
-                fn (Interaction $interaction) => $interaction->acknowledgeWithResponse(true)
+                fn (Interaction $interaction) => $interaction->acknowledgeWithResponse()
                     ->then(fn () => $sra->facts->bird())
                     ->then(function (Fact $bird) use ($interaction): PromiseInterface {
                         $builder = SRA::createBuilder();
@@ -228,7 +228,7 @@ $func = function (SRA $sra) {
 
             $sra->listenCommand(
                 $name = 'birdfactimage',
-                fn (Interaction $interaction) => $interaction->acknowledgeWithResponse(true)
+                fn (Interaction $interaction) => $interaction->acknowledgeWithResponse()
                     ->then(fn () => $sra->animals->bird())
                     ->then(function (Animal $bird) use ($interaction): PromiseInterface {
                         $builder = SRA::createBuilder();
@@ -246,24 +246,20 @@ $func = function (SRA $sra) {
                 })
             );
 
-            if (! $command = $commands->get('name', $name = 'birdfact')) {
+            static $slashcommands = [
+                'birdfact' => 'Get a random bird fact.',
+                'birdfactimage' => 'Get a random bird fact with an image.',
+            ];
+            foreach ($slashcommands as $name => $description) {
+                if ($command = $commands->get('name', $name)) {
+                    $sra->logger->debug("[GLOBAL APPLICATION COMMAND] `$name` command already exists.");
+                    continue;
+                }
                 $sra->logger->debug("[GLOBAL APPLICATION COMMAND] Creating `$name` command...");
                 $builder = CommandBuilder::new()
                     ->setName($name)
                     ->setType(Command::CHAT_INPUT)
-                    ->setDescription('Get a random bird fact.')
-                    ->setContext([Interaction::CONTEXT_TYPE_GUILD, Interaction::CONTEXT_TYPE_BOT_DM, Interaction::CONTEXT_TYPE_PRIVATE_CHANNEL])
-                    ->addIntegrationType(Application::INTEGRATION_TYPE_GUILD_INSTALL)
-                    ->addIntegrationType(Application::INTEGRATION_TYPE_USER_INSTALL);
-                $commands->save($sra->application->commands->create($builder->toArray()));
-            }
-
-            if (! $command = $commands->get('name', $name = 'birdfactimage')) {
-                $sra->logger->debug("[GLOBAL APPLICATION COMMAND] Creating `$name` command...");
-                $builder = CommandBuilder::new()
-                    ->setName($name)
-                    ->setType(Command::CHAT_INPUT)
-                    ->setDescription('Get a random bird fact with an image.')
+                    ->setDescription($description)
                     ->setContext([Interaction::CONTEXT_TYPE_GUILD, Interaction::CONTEXT_TYPE_BOT_DM, Interaction::CONTEXT_TYPE_PRIVATE_CHANNEL])
                     ->addIntegrationType(Application::INTEGRATION_TYPE_GUILD_INSTALL)
                     ->addIntegrationType(Application::INTEGRATION_TYPE_USER_INSTALL);
